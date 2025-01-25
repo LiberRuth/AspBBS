@@ -1,0 +1,111 @@
+﻿@{
+    ViewData["Title"] = "List Page";
+}
+@{
+    List<int> PagingNumber(int numMax)
+    {
+        List<int> originalList = Enumerable.Range(1, numMax).ToList();
+        List<List<int>> slicedLists = new List<List<int>>();
+        for (int i = 0; i < originalList.Count; i += 5)
+        {
+            List<int> sublist = originalList.Skip(i).Take(5).ToList();
+            slicedLists.Add(sublist);
+        }
+
+        foreach (var sublist in slicedLists)
+        {
+            if (sublist.Contains(ViewBag.page))
+            {
+                originalList = sublist;
+            }
+        }
+        return originalList;
+    }
+}
+<style>
+    .custom_border {
+        border-top: 2px solid gray;
+        border-bottom: 2px solid gray;
+        border-left: none;
+        border-right: none;
+    }
+
+    a.href_color {
+        color: black;
+    }
+
+    .pagination .page-item:hover a.page-link {
+        background-color: initial;
+    }
+
+    .pagination .page-item a.page-link:focus {
+        background-color: initial;
+    }
+</style>
+<form action="/list/@ViewBag.gall_Id" method="GET">
+    <div class="hstack py-4">
+        <div class="input-group mb-3">
+            <input type="search" name="search" value="@ViewBag.search" class="form-control rounded-0" id="searchInput" placeholder="검색" aria-label="Search" aria-describedby="button-search">
+            <button class="btn btn-secondary rounded-0" type="submit" id="button-search">검색</button>
+        </div>
+    </div>
+</form>
+<h3 class="py-2">
+    <a href="/list/@ViewBag.gall_Id" style="color: #212529; text-decoration: none;">게시판</a>
+</h3>
+<div class="mx-auto">
+    <ul class="list-group list-group-flush custom_border">
+        @foreach (var models in Model!)
+        {
+            <li class="list-group-item p-3">
+                <a href="/list/view/@ViewBag.gall_Id/@models.Id" class="href_color" style="text-decoration: none;">
+                    <div class="mx-auto p-0">
+                        <p class="card-title" style="font-weight:bolder;">@models.Title</p>
+                        <div class="hstack gap-2">
+                            <div class="hstack gap-1">
+                                <div>@models.Username</div>
+                            </div>
+                            <div>|</div>
+                            <div>@models.CreatedAt</div>
+                        </div>
+                    </div>
+                </a>
+            </li>
+        }
+    </ul>
+</div>
+<button type="button" class="btn btn-primary mt-3" onclick="window.location.href='/list/write?@ViewBag.gall_Id';">글쓰기</button>
+<div class="d-flex justify-content-center py-5">
+    <nav>
+        <ul class="pagination pagination-sm">
+            @if (ViewBag.page > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="/list/@ViewBag.gall_Id?page=@ViewBag.backNumber@ViewBag.searchStr">이전</a>
+                </li>
+            }
+            @foreach (var itemnum in PagingNumber(ViewBag.pagenum))
+            {
+                @if (ViewBag.page == itemnum)
+                {
+                    <li class="page-item active" aria-current="page">
+                        <span class="page-link">@itemnum</span>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item">
+                        <a class="page-link" href='/list/@ViewBag.gall_Id?page=@itemnum@ViewBag.searchStr'>@itemnum</a>
+                    </li>
+                }
+
+            }
+            @if (ViewBag.pagenum > ViewBag.page)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="/list/@ViewBag.gall_Id?page=@ViewBag.nextNumber@ViewBag.searchStr">다음</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>

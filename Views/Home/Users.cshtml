@@ -1,0 +1,14 @@
+﻿@{
+    ViewData["Title"] = "User Page";
+}
+@if (Model != null)
+{
+    <div>
+        <p>Name: @Model.Username</p>
+        <p>Email: @Model.Email</p>
+        <p>CreatedAt: @Model.CreatedAt</p>
+    </div>
+    <form id="logoutForm" asp-controller="Home" asp-action="Logout" method="post">
+        <button type="submit" class="btn btn-link nav-link">Logout</button>
+    </form>
+}
