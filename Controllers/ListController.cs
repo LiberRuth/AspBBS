@@ -77,7 +77,18 @@ namespace AspBBS.Controllers
         [Route("/list/view/{tableName}/{id:int}")]
         public IActionResult Views(string tableName, int id)
         {
-            return View();
+            ViewBag.gall_id = tableName;
+            ViewBag.data_id = id;
+
+            DataModel listData = _dataService!.GetDetailData(tableName!, id);
+
+            if (listData == null)
+            {
+                Response.StatusCode = 404;
+                return View("NotFound");
+            }
+
+            return View(listData);
         }
 
         [HttpGet]
