@@ -34,6 +34,33 @@
 </div>
 @if (ViewBag.UserVerification)
 {
-    <a href="/list/modify?id=@ViewBag.gall_id&no=@ViewBag.data_id" class="btn btn-primary">수정</a>
+    <div class="hstack">
+        <a href="/list/modify/?id=@ViewBag.gall_id&no=@ViewBag.data_id" class="btn btn-primary">수정</a>
+        @*<form id="writeForm" action="/list/delete/?id=@ViewBag.gall_id&no=@ViewBag.data_id" method="post">
+            <button class="btn btn-primary">삭제</button>
+        </form>*@
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+            삭제
+        </button>
+        <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">삭제</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        게시글을 삭제하시겠습니까?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                        <form id="writeForm" action="/list/delete/?id=@ViewBag.gall_id&no=@ViewBag.data_id" method="post">
+                            <button class="btn btn-primary">삭제</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 }
 

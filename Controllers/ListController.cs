@@ -10,6 +10,7 @@ namespace AspBBS.Controllers
     {
         private readonly WriteService _writeService;
         private readonly ModifyService _modifyService;
+        private readonly DeleteService _deleteService;
         private readonly UserService _userService;
         private readonly DataService _dataService;
 
@@ -24,10 +25,11 @@ namespace AspBBS.Controllers
         public int backNumber = 2;
         public int nextNumber = 1;
 
-        public ListController(WriteService writeService, ModifyService modifyService, UserService userService, DataService dataService)
+        public ListController(WriteService writeService, ModifyService modifyService, UserService userService, DataService dataService, DeleteService deleteService)
         {
             _writeService = writeService;
             _modifyService = modifyService;
+            _deleteService = deleteService;
             _userService = userService;
             _dataService = dataService;
         }
@@ -94,7 +96,15 @@ namespace AspBBS.Controllers
 
             UserModel user = _userService.GetUserByUsername(User.FindFirst(ClaimTypes.Email!)?.Value!);
 
-            if (!_modifyService.IsUsernameAndEmailMatch(tableName, id, user.Username, user.Email))
+            if (user != null)
+            {
+                if (!_modifyService.IsUsernameAndEmailMatch(tableName, id, user.Username, user.Email))
+                {
+                    ViewBag.UserVerification = false;
+                }
+            }
+
+            if (!User.Identity?.IsAuthenticated ?? false)
             {
                 ViewBag.UserVerification = false;
             }
@@ -209,7 +219,13 @@ namespace AspBBS.Controllers
         public IActionResult Modify([FromQuery] string id, [FromQuery] int no, [Bind("Title,Username,Email,Text")] WriteModel write)
         {
             UserModel user = _userService.GetUserByUsername(User.FindFirst(ClaimTypes.Email!)?.Value!);
-          
+            
+            if (user == null)
+            {
+                Response.StatusCode = 404;
+                return View("NotFound");
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(write);
@@ -229,6 +245,29 @@ namespace AspBBS.Controllers
             }
 
             ModelState.AddModelError("", "글 작성에 실패했습니다. 다시 시도해주세요.");
+            return View(write);
+        }
+
+        [HttpPost]
+        [Route("/list/delete")]
+        public IActionResult Delete([FromQuery] string id, [FromQuery] int no, [Bind("Title,Username,Email,Text")] WriteModel write)
+        {       
+            UserModel user = _userService.GetUserByUsername(User.FindFirst(ClaimTypes.Email!)?.Value!);
+
+            if (user == null)
+            {
+                Response.StatusCode = 404;
+                return View("NotFound");
+            }
+
+            bool isSuccess = _deleteService.DeleteText(id, no, user.Username, user.Email);
+
+            if (isSuccess)
+            {
+                return Redirect($"/list/{id}");
+            }
+
+            ModelState.AddModelError("", "실패했습니다. 다시 시도해주세요.");
             return View(write);
         }
     }
