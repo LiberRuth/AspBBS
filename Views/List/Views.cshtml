@@ -32,3 +32,8 @@
         </div>
     </div>
 </div>
+@if (ViewBag.UserVerification)
+{
+    <a href="/list/modify?id=@ViewBag.gall_id&no=@ViewBag.data_id" class="btn btn-primary">수정</a>
+}
+

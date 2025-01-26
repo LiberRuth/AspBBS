@@ -1,0 +1,82 @@
+﻿@{
+    ViewData["Title"] = "Modify";
+}
+
+@section Css {
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+}
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+    <script>
+        // Quill 에디터 초기화
+        const quill = new Quill('#editor-container', {
+            theme: 'snow',
+            placeholder: '내용을 입력하세요...',
+            modules: {
+                toolbar: [
+                    [{ header: [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ list: 'ordered' }, { list: 'bullet' }],
+                    ['link', 'image']
+                ]
+            }
+        });
+
+        function submitForm() {
+            const title = document.getElementById('title').value;
+            if (!title) {
+                alert('제목을 입력해주세요!');
+                return;
+            }
+
+            const content = quill.root.innerHTML;
+            document.getElementById('content').value = content;
+            document.getElementById('writeForm').submit();
+        }
+
+    </script>
+}
+
+<style>
+    #editor-container {
+        height: 600px;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        background-color: #fff;
+        border-radius: 5px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    #result {
+        margin-top: 20px;
+        border: 1px solid #ddd;
+        padding: 10px;
+        background-color: #f9f9f9;
+    }
+</style>
+
+<div class="container mt-4">
+    <form id="writeForm" action="/list/modify/?id=@ViewBag.Id&no=@ViewBag.No" method="post">
+        @Html.AntiForgeryToken()
+        <div class="form-group">
+            <label for="title">제목</label>
+            <input type="text" class="form-control" id="title" name="Title" required placeholder="제목을 입력하세요" equired value="@Model.Title">
+        </div>
+        <div>
+            <div id="editor-container">
+                @Html.Raw(Model.Text!)
+            </div>
+        </div>
+        <textarea id="content" name="Text" style="display: none;"></textarea>
+        <button type="button" class="btn btn-primary mt-3" onclick="submitForm()">OK</button>
+    </form>
+</div>

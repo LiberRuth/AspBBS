@@ -22,6 +22,7 @@ namespace AspBBS
             builder.Services.AddSingleton(new UserService(connectionString));
             builder.Services.AddSingleton(new WriteService(connectionString));
             builder.Services.AddSingleton(new DataService(connectionString));
+            builder.Services.AddSingleton(new ModifyService(connectionString));
             //builder.Services.AddScoped<UserService>();
 
             // 인증 및 권한 부여 서비스 추가
