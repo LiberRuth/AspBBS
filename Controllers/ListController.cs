@@ -241,7 +241,7 @@ namespace AspBBS.Controllers
 
             if (isSuccess)
             {
-                return Redirect($"/list/{id}");
+                return Redirect($"/list/view/{id}/{no}");
             }
 
             ModelState.AddModelError("", "글 작성에 실패했습니다. 다시 시도해주세요.");
