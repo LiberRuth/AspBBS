@@ -206,6 +206,7 @@ namespace AspBBS.Controllers
 
             if (!_modifyService.IsUsernameAndEmailMatch(id, no, user.Username, user.Email)) 
             {
+                Response.StatusCode = 404;
                 return View("NotFound");
             }
 
