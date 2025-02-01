@@ -27,7 +27,7 @@ namespace AspBBS.Service
                     command.Parameters.AddWithValue("@Queries", $"%{queries}%");
 
                     int totalCount = Convert.ToInt32(command.ExecuteScalar());
-                    return totalCount; // 연결은 using 블록 종료 시 자동으로 닫힘
+                    return totalCount;
                 }
             }
         }
@@ -72,7 +72,7 @@ namespace AspBBS.Service
                         Console.WriteLine($"[Error] {ex.Message}");
                     }
 
-                    return dataList; // 연결은 using 블록 종료 시 자동으로 닫힘
+                    return dataList;
                 }
             }
         }

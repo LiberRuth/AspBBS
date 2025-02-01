@@ -22,13 +22,11 @@ namespace AspBBS.Controllers
         {
             if (User.Identity!.IsAuthenticated)
             {
-                // 사용자의 이메일 주소를 찾기 위해 ClaimsPrincipal에서 Claims 중 이메일 주소를 찾습니다.
-                string userEmail = User.FindFirst(ClaimTypes.Email!)?.Value!;
+                string userId = User.FindFirst("UserID")?.Value!;
 
-                if (userEmail != null)
+                if (userId != null)
                 {
-                    // userEmail을 기반으로 사용자 정보를 가져옵니다.
-                    UserModel user = _userService.GetUserByUsername(userEmail);
+                    UserModel user = _userService.GetUserByUserID(userId);
 
                     if (user != null)
                     {
@@ -56,16 +54,21 @@ namespace AspBBS.Controllers
 
             if (User.Identity!.IsAuthenticated)
             {
-                string userEmail = User.FindFirst(ClaimTypes.Email!)?.Value!;
+                string userId = User.FindFirst("UserID")?.Value!;
 
-                if (userEmail != null)
+                if (userId != null)
                 {
-                    UserModel user = _userService.GetUserByUsername(userEmail);
+                    UserModel user = _userService.GetUserByUserID(userId);
 
                     if (user != null)
                     {
                         return View(user);
                     }
+                }
+                else 
+                {
+                    Response.StatusCode = 404;
+                    return View("NotFound");
                 }
             }
 
@@ -97,6 +100,7 @@ namespace AspBBS.Controllers
                 {
                     new Claim(ClaimTypes.Name, user.Username!), // 사용자명을 Name 클레임으로 설정
                     new Claim(ClaimTypes.Email, user.Email!),
+                    new Claim("UserID", user.UserID.ToString())
                     // 다른 클레임 추가
                 };
 
@@ -171,8 +175,16 @@ namespace AspBBS.Controllers
                 return View(user);
             }
 
+            RandomString randomString = new RandomString();
+            string ran;
+
+            do
+            {
+                ran = randomString.GenerateRandomString(24);
+            } while (!_userService.IsEmailUnique(ran)); // 중복이면 다시 생성
+
             // 사용자 등록 시도
-            bool isSuccess = _userService.RegisterUser(user, clientIp, createdAt);
+            bool isSuccess = _userService.RegisterUser(user, clientIp, createdAt, ran);
             if (isSuccess)
             {
                 return RedirectToAction("Login");

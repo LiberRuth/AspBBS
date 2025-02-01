@@ -13,7 +13,8 @@ namespace AspBBS.Service
             _connectionString = connectionString;
         }
 
-        public bool TextWrite(string tableName, string title, string username, string email, string text, string createdAt, string ip, string situation = "public")
+        public bool TextWrite(string tableName, string title, string username, string email, 
+            string text, string createdAt, string ip, string userID,string situation = "public")
         {
             if (!TableExists(tableName)) return false;
 
@@ -21,9 +22,8 @@ namespace AspBBS.Service
             {
                 connection.Open();
 
-                // 'string'을 사용하여 쿼리를 동적으로 설정
-                string query = @$"INSERT INTO {tableName} (Title, Username, Email, Texts, CreatedAt, Situation, IP) 
-                          VALUES (@Title, @Username, @Email, @Texts, @CreatedAt, @Situation, @IP)";
+                string query = @$"INSERT INTO {tableName} (Title, Username, Email, Texts, CreatedAt, Situation, IP, UserID) 
+                          VALUES (@Title, @Username, @Email, @Texts, @CreatedAt, @Situation, @IP, @UserID)";
 
                 using (var command = new MySqlCommand(query, connection))
                 {
@@ -34,13 +34,13 @@ namespace AspBBS.Service
                     command.Parameters.AddWithValue("@CreatedAt", createdAt);
                     command.Parameters.AddWithValue("@Situation", situation);
                     command.Parameters.AddWithValue("@IP", ip);
+                    command.Parameters.AddWithValue("@UserID", userID);
 
                     int rowsAffected = command.ExecuteNonQuery();
                     return rowsAffected > 0;
                 }
             }
         }
-
 
         public bool TableExists(string tableName)
         {

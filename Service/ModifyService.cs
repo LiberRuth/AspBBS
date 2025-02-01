@@ -36,7 +36,7 @@ namespace AspBBS.Service
             }
         }
 
-        public bool IsUsernameAndEmailMatch(string tableName, int id, string username, string email)
+        public bool IsUserIDMatch(string tableName, int id, string userID)
         {
             if (!TableExists(tableName)) return false;
 
@@ -44,16 +44,14 @@ namespace AspBBS.Service
             {
                 connection.Open();
 
-                // 특정 ID에서 Username과 Email을 확인하는 쿼리
                 string query = @$"SELECT COUNT(*) 
                           FROM {tableName} 
-                          WHERE Id = @Id AND Username = @Username AND Email = @Email";
+                          WHERE Id = @Id AND UserID = @UserID";
 
                 using (var command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@Id", id);
-                    command.Parameters.AddWithValue("@Username", username);
-                    command.Parameters.AddWithValue("@Email", email);
+                    command.Parameters.AddWithValue("@UserID", userID);
 
                     int count = Convert.ToInt32(command.ExecuteScalar());
                     return count > 0;

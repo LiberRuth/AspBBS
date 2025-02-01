@@ -20,5 +20,7 @@ namespace AspBBS.Models
         public string IP { get; set; } = string.Empty;
 
         public string CreatedAt { get; set; } = string.Empty;
+
+        public string UserID { get; set; } = string.Empty;
     }
 }

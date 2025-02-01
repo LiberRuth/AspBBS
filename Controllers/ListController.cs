@@ -2,7 +2,6 @@
 using AspBBS.Service;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using System.Security.Claims;
 
 namespace AspBBS.Controllers
 {
@@ -94,11 +93,11 @@ namespace AspBBS.Controllers
                 return View("NotFound");
             }
 
-            UserModel user = _userService.GetUserByUsername(User.FindFirst(ClaimTypes.Email!)?.Value!);
+            UserModel user = _userService.GetUserByUserID(User.FindFirst("UserID")?.Value!);
 
             if (user != null)
             {
-                if (!_modifyService.IsUsernameAndEmailMatch(tableName, id, user.Username, user.Email))
+                if (!_modifyService.IsUserIDMatch(tableName, id, user.UserID))
                 {
                     ViewBag.UserVerification = false;
                 }
@@ -137,7 +136,7 @@ namespace AspBBS.Controllers
         [Route("/list/write")]
         public IActionResult Write([FromQuery] string id, [Bind("Title,Username,Email,Text")] WriteModel write)
         {
-            UserModel user = _userService.GetUserByUsername(User.FindFirst(ClaimTypes.Email!)?.Value!);
+            UserModel user = _userService.GetUserByUserID(User.FindFirst("UserID")?.Value!);
 
             string clientIp;
 
@@ -171,7 +170,7 @@ namespace AspBBS.Controllers
             // `DateTime.Now`를 사용하여 생성 날짜를 현재 시간으로 설정
             string createdAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-            bool isSuccess = _writeService.TextWrite(id, write.Title, user.Username, user.Email, write.Text, createdAt, clientIp);
+            bool isSuccess = _writeService.TextWrite(id, write.Title, user.Username, user.Email, write.Text, createdAt, clientIp, user.UserID);
 
             if (isSuccess)
             {
@@ -202,15 +201,21 @@ namespace AspBBS.Controllers
                 return View("NotFound");
             }
 
-            UserModel user = _userService.GetUserByUsername(User.FindFirst(ClaimTypes.Email!)?.Value!);
+            UserModel user = _userService.GetUserByUserID(User.FindFirst("UserID")?.Value!);
 
-            if (!_modifyService.IsUsernameAndEmailMatch(id, no, user.Username, user.Email)) 
+            if (!_modifyService.IsUserIDMatch(id, no, user.UserID)) 
             {
                 Response.StatusCode = 404;
                 return View("NotFound");
             }
 
             DataModel listData = _dataService!.GetDetailData(id, no);
+
+            if (listData == null)
+            {
+                Response.StatusCode = 404;
+                return View("NotFound");
+            }
 
             return View(listData);
         }
@@ -219,7 +224,7 @@ namespace AspBBS.Controllers
         [Route("/list/modify")]
         public IActionResult Modify([FromQuery] string id, [FromQuery] int no, [Bind("Title,Username,Email,Text")] WriteModel write)
         {
-            UserModel user = _userService.GetUserByUsername(User.FindFirst(ClaimTypes.Email!)?.Value!);
+            UserModel user = _userService.GetUserByUserID(User.FindFirst("UserID")?.Value!);
             
             if (user == null)
             {
@@ -253,7 +258,7 @@ namespace AspBBS.Controllers
         [Route("/list/delete")]
         public IActionResult Delete([FromQuery] string id, [FromQuery] int no, [Bind("Title,Username,Email,Text")] WriteModel write)
         {       
-            UserModel user = _userService.GetUserByUsername(User.FindFirst(ClaimTypes.Email!)?.Value!);
+            UserModel user = _userService.GetUserByUserID(User.FindFirst("UserID")?.Value!);
 
             if (user == null)
             {
@@ -261,7 +266,7 @@ namespace AspBBS.Controllers
                 return View("NotFound");
             }
 
-            bool isSuccess = _deleteService.DeleteText(id, no, user.Username, user.Email);
+            bool isSuccess = _deleteService.DeleteText(id, no, user.UserID);
 
             if (isSuccess)
             {

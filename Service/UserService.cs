@@ -12,19 +12,20 @@ namespace AspBBS.Service
             _connectionString = connectionString;
         }
 
-        public bool RegisterUser(UserModel user, string ip, string createdAt)
+        public bool RegisterUser(UserModel user, string ip, string createdAt, string userID)
         {
             using (MySqlConnection connection = new MySqlConnection(_connectionString))
             {
                 connection.Open();
 
-                string query = "INSERT INTO Users (Username, Email, Password, IP, CreatedAt) VALUES (@Username, @Email, @Password, @IP, @CreatedAt)";
+                string query = "INSERT INTO Users (Username, Email, Password, IP, CreatedAt, UserID) VALUES (@Username, @Email, @Password, @IP, @CreatedAt, @UserID)";
                 MySqlCommand command = new MySqlCommand(query, connection);
                 command.Parameters.AddWithValue("@Username", user.Username);
                 command.Parameters.AddWithValue("@Email", user.Email);
                 command.Parameters.AddWithValue("@Password", user.Password);
                 command.Parameters.AddWithValue("@IP", ip);
                 command.Parameters.AddWithValue("@CreatedAt", createdAt);
+                command.Parameters.AddWithValue("@UserID", userID);
 
                 int rowsAffected = command.ExecuteNonQuery();
                 connection.Clone();
@@ -53,7 +54,8 @@ namespace AspBBS.Service
                         Email = reader.GetString("Email"),
                         Password = reader.GetString("Password"),
                         IP = reader.GetString("IP"),
-                        CreatedAt = reader.GetString("CreatedAt")
+                        CreatedAt = reader.GetString("CreatedAt"),
+                        UserID = reader.GetString("UserID")
                     };
                     reader.Close();
                     return user;
@@ -65,15 +67,15 @@ namespace AspBBS.Service
         }
 
 
-        public UserModel GetUserByUsername(string email)
+        public UserModel GetUserByUserID(string userID)
         {
             using (MySqlConnection connection = new MySqlConnection(_connectionString))
             {
                 connection.Open();
 
-                string query = "SELECT * FROM Users WHERE Email = @Email";
+                string query = "SELECT * FROM Users WHERE UserID = @UserID";
                 MySqlCommand command = new MySqlCommand(query, connection);
-                command.Parameters.AddWithValue("@Email", email);
+                command.Parameters.AddWithValue("@UserID", userID);
 
                 MySqlDataReader reader = command.ExecuteReader();
                 if (reader.Read())
@@ -85,7 +87,8 @@ namespace AspBBS.Service
                         Email = reader.GetString("Email"),
                         Password = reader.GetString("Password"),
                         IP = reader.GetString("IP"),
-                        CreatedAt = reader.GetString("CreatedAt")
+                        CreatedAt = reader.GetString("CreatedAt"),
+                        UserID = reader.GetString("UserID")
                     };
                     reader.Close();
                     return user;
@@ -112,6 +115,20 @@ namespace AspBBS.Service
             }
         }
 
+        public bool IsUserIDUnique(string userID) 
+        {
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string checkUserIDQuery = "SELECT COUNT(*) FROM Users WHERE UserID = @UserID";
+                MySqlCommand checkUserIDCommand = new MySqlCommand(checkUserIDQuery, connection);
+                checkUserIDCommand.Parameters.AddWithValue("@UserID", userID);
+
+                int emailCount = Convert.ToInt32(checkUserIDCommand.ExecuteScalar());
+                return emailCount == 0;
+            }
+        }
     }
 }
 

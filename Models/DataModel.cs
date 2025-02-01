@@ -19,5 +19,7 @@ namespace AspBBS.Models
         public string CreatedAt { get; set; } = string.Empty;
 
         public string Situation { get; set; } = string.Empty;
+
+        public string UserID { get; set; } = string.Empty;
     }
 }
