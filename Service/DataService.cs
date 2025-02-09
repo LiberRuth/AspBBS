@@ -32,7 +32,6 @@ namespace AspBBS.Service
             }
         }
 
-
         public List<DataModel> GetListData(string tableName, string queries, int pageNumber, int pageSize = 50)
         {
             if (!TableExists(tableName)) return null!;

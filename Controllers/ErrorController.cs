@@ -7,8 +7,9 @@ namespace AspBBS.Controllers
         [Route("error/{code}")]
         public IActionResult Index(int code)
         {
-            if (code == 404)
+            if (code == 404 || code == 0)
             {
+                Response.StatusCode = 404;
                 return View("NotFound");
             }
 
