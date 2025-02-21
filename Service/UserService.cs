@@ -22,7 +22,7 @@ namespace AspBBS.Service
                 MySqlCommand command = new MySqlCommand(query, connection);
                 command.Parameters.AddWithValue("@Username", user.Username);
                 command.Parameters.AddWithValue("@Email", user.Email);
-                command.Parameters.AddWithValue("@Password", user.Password);
+                command.Parameters.AddWithValue("@Password", BCrypt.Net.BCrypt.HashPassword(user.Password));
                 command.Parameters.AddWithValue("@IP", ip);
                 command.Parameters.AddWithValue("@CreatedAt", createdAt);
                 command.Parameters.AddWithValue("@UserID", userID);
@@ -33,39 +33,42 @@ namespace AspBBS.Service
             }
         }
 
-        public UserModel AuthenticateUser(string email, string password)
+        public UserModel? AuthenticateUser(string email, string password)
         {
             using (MySqlConnection connection = new MySqlConnection(_connectionString))
             {
                 connection.Open();
 
-                string query = "SELECT * FROM Users WHERE Email = @Email AND Password = @Password";
+                string query = "SELECT * FROM Users WHERE Email = @Email";
                 MySqlCommand command = new MySqlCommand(query, connection);
                 command.Parameters.AddWithValue("@Email", email);
-                command.Parameters.AddWithValue("@Password", password);
 
-                MySqlDataReader reader = command.ExecuteReader();
-                if (reader.Read())
+                using (MySqlDataReader reader = command.ExecuteReader())
                 {
-                    UserModel user = new UserModel
+                    if (reader.Read())
                     {
-                        Id = reader.GetInt32("Id"),
-                        Username = reader.GetString("Username"),
-                        Email = reader.GetString("Email"),
-                        Password = reader.GetString("Password"),
-                        IP = reader.GetString("IP"),
-                        CreatedAt = reader.GetString("CreatedAt"),
-                        UserID = reader.GetString("UserID")
-                    };
-                    reader.Close();
-                    return user;
+                        string storedHashedPassword = reader.GetString("Password");
+
+                        bool isValid = BCrypt.Net.BCrypt.Verify(password, storedHashedPassword);
+
+                        if (isValid)
+                        {
+                            return new UserModel
+                            {
+                                Id = reader.GetInt32("Id"),
+                                Username = reader.GetString("Username"),
+                                Email = reader.GetString("Email"),
+                                IP = reader.GetString("IP"),
+                                CreatedAt = reader.GetString("CreatedAt"),
+                                UserID = reader.GetString("UserID")
+                            };
+                        }
+                    }
                 }
-                reader.Close();
             }
 
-            return null!;
+            return null; 
         }
-
 
         public UserModel GetUserByUserID(string userID)
         {
@@ -85,7 +88,6 @@ namespace AspBBS.Service
                         Id = reader.GetInt32("Id"),
                         Username = reader.GetString("Username"),
                         Email = reader.GetString("Email"),
-                        Password = reader.GetString("Password"),
                         IP = reader.GetString("IP"),
                         CreatedAt = reader.GetString("CreatedAt"),
                         UserID = reader.GetString("UserID")
