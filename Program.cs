@@ -68,7 +68,7 @@ namespace AspBBS
                 app.UseHsts();
             }
 
-            app.UseStatusCodePagesWithReExecute("/error/{0}");
+            app.UseStatusCodePagesWithReExecute("/Home/NotFound");
 
             //인증 및 권한 부여 미들웨어 사용
             app.UseAuthentication();
